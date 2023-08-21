@@ -25,11 +25,13 @@ Import-Certificate -FilePath "lcs16-CA.crt" -CertStoreLocation "Cert:\LocalMachi
 $rootCert = Get-ChildItem -Path "Cert:\CurrentUser\My" | Where-Object {$_.Subject -eq "CN=lcs16-CA"}
 
 #crear certificado HTTPS
-$httpsCert = New-SelfSignedCertificate -CertStoreLocation "Cert:\CurrentUser\My" -DnsName "lcs16" -KeyUsage DigitalSignature,KeyEncipherment -Signer $rootCert
+$dateFrom  = Get-Date -Date "2000-01-01 00:00:00"
+$dateTo   = Get-Date -Date "2100-01-01 00:00:00"
+$httpsCert = New-SelfSignedCertificate -CertStoreLocation "Cert:\CurrentUser\My" -DnsName "lcs16-HTTPS" -KeyUsage DigitalSignature,KeyEncipherment -Signer $rootCert -NotAfter $dateTo -NotBefore $dateFrom
 
 #exportar certificado HTTPS
 $httpsCertPassword = ConvertTo-SecureString -String "password" -Force -AsPlainText
 $httpsCertPath = Join-Path -Path "Cert:\CurrentUser\My" -ChildPath "$($httpsCert.Thumbprint)"
-Export-PfxCertificate -Cert $httpsCertPath -FilePath "lcs16.pfx" -Password $httpsCertPassword
-Export-Certificate -Cert $httpsCertPath -FilePath "lcs16.crt"
+Export-PfxCertificate -Cert $httpsCertPath -FilePath "lcs16-HTTPS.pfx" -Password $httpsCertPassword
+Export-Certificate -Cert $httpsCertPath -FilePath "lcs16-HTTPS.crt"
 ```
