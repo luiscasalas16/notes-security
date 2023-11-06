@@ -1,6 +1,6 @@
 # security / certificates
 
-1. create a self-signed root authority certificate
+- A.1. create a self-signed root authority certificate
 
 ```powershell
 #crear certificado CA
@@ -18,7 +18,7 @@ Export-Certificate -Cert $rootCertPath -FilePath "lcs16-CA.crt"
 Import-Certificate -FilePath "lcs16-CA.crt" -CertStoreLocation "Cert:\LocalMachine\Root"
 ```
 
-2. create a https signed by root authority certificate
+- A.2. create a https signed by root authority certificate
 
 ```powershell
 #leer certificado CA
@@ -34,4 +34,12 @@ $httpsCertPassword = ConvertTo-SecureString -String "password" -Force -AsPlainTe
 $httpsCertPath = Join-Path -Path "Cert:\CurrentUser\My" -ChildPath "$($httpsCert.Thumbprint)"
 Export-PfxCertificate -Cert $httpsCertPath -FilePath "lcs16-HTTPS.pfx" -Password $httpsCertPassword
 Export-Certificate -Cert $httpsCertPath -FilePath "lcs16-HTTPS.crt"
+```
+
+- B.1. RDCMan
+
+```powershell
+$dateFrom  = Get-Date -Date "2000-01-01 00:00:00"
+$dateTo   = Get-Date -Date "2100-01-01 00:00:00"
+New-SelfSignedCertificate -KeySpec KeyExchange -KeyExportPolicy Exportable -HashAlgorithm SHA1 -KeyLength 2048 -CertStoreLocation "cert:\CurrentUser\My" -Subject "CN=MyRDCManCert" -NotAfter $dateTo -NotBefore $dateFrom
 ```
