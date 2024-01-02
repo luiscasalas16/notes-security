@@ -17,10 +17,10 @@ namespace tools.Apis
             this.credentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(user + ":" + password));
         }
 
-        public HotspotsConverter HotspotsSearch(string proyect, int pageSize, int pageNumber)
+        public HotspotsConverter HotspotsSearch(string project, int pageSize, int pageNumber)
         {
             var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{url}/api/hotspots/search?projectKey={proyect}&ps={pageSize}&p={pageNumber}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{url}/api/hotspots/search?projectKey={project}&ps={pageSize}&p={pageNumber}");
             request.Headers.Add("Authorization", "Basic " + credentials);
             var response = client.Send(request);
             response.EnsureSuccessStatusCode();
@@ -28,10 +28,10 @@ namespace tools.Apis
             return HotspotsConverter.FromJson(json);
         }
 
-        public IssuesConverter IssuesSearch(string proyect, int pageSize, int pageNumber, string types = null)
+        public IssuesConverter IssuesSearch(string project, int pageSize, int pageNumber, string types = null)
         {
             var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{url}/api/issues/search?componentKeys={proyect}&ps={pageSize}&p={pageNumber}" + (types != null ? ($"&types={types}") : string.Empty));
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{url}/api/issues/search?componentKeys={project}&ps={pageSize}&p={pageNumber}" + (types != null ? ($"&types={types}") : string.Empty));
             request.Headers.Add("Authorization", "Basic " + credentials);
             var response = client.Send(request);
             response.EnsureSuccessStatusCode();
@@ -39,7 +39,7 @@ namespace tools.Apis
             return IssuesConverter.FromJson(json);
         }
 
-        public ProjectsConverter ProjectsSearch(List<string> proyects = null)
+        public ProjectsConverter ProjectsSearch(List<string> projects = null)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, $"{url}/api/projects/search");
@@ -48,11 +48,11 @@ namespace tools.Apis
             response.EnsureSuccessStatusCode();
             var json = response.Content.ReadAsStringAsync().Result;
             var result = ProjectsConverter.FromJson(json);
-            if (proyects != null)
+            if (projects != null)
             {
                 foreach (var component in result.Components.ToList())
                 {
-                    var t = proyects.FirstOrDefault(t => t.Equals(component.Name, StringComparison.OrdinalIgnoreCase));
+                    var t = projects.FirstOrDefault(t => t.Equals(component.Name, StringComparison.OrdinalIgnoreCase));
 
                     if (t == null)
                         result.Components.Remove(component);
