@@ -15,21 +15,21 @@ services:
     environment:
       - SONARQUBE_JDBC_URL=jdbc:mariadb://db:3306/sonar
       - SONARQUBE_JDBC_USERNAME=sonar
-      - SONARQUBE_JDBC_PASSWORD=sonar
+      - SONARQUBE_JDBC_PASSWORD=qPj2xsOlDJfAcMh87Jp6jdWPt
     volumes:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
 
   db:
-    image: mariadb
+    image: mariadb:10.11.7
     networks:
       - sonarnet
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_DATABASE=sonar
       - MYSQL_USER=sonar
-      - MYSQL_PASSWORD=sonar
+      - MYSQL_PASSWORD=qPj2xsOlDJfAcMh87Jp6jdWPt
+      - MYSQL_ROOT_PASSWORD=Z22RhgjvTrsOShGBkC842nRHg
     volumes:
       - mariadb_data:/var/lib/mysql
 
