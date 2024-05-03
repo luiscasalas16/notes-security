@@ -5,7 +5,7 @@ networks:
 
 services:
   sonarqube:
-    image: sonarqube:10.4-community
+    image: sonarqube:10.5.1-community
     expose:
       - 9000
     ports:
