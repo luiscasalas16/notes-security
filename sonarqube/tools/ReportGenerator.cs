@@ -1,7 +1,9 @@
-﻿using CsvHelper;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Globalization;
+using System.Text;
+using CsvHelper;
 using tools.Apis;
+using tools.Converters.Issues;
 using tools.Models;
 using tools.utilities;
 
@@ -9,13 +11,13 @@ namespace tools
 {
     internal class ReportGenerator
     {
-        private SonarqubeClient sonarqubeClient;
+        readonly SonarqubeClient sonarqubeClient;
 
-        private StringDictionary rulesCache = new StringDictionary();
+        readonly StringDictionary rulesCache = new StringDictionary();
 
-        private Dictionary<string, int> counterCache = new Dictionary<string, int>();
+        readonly Dictionary<string, int> counterCache = new Dictionary<string, int>();
 
-        public ReportGenerator(string url, string user, string password) 
+        public ReportGenerator(string url, string user, string password)
         {
             sonarqubeClient = new SonarqubeClient(url, user, password);
         }
@@ -78,7 +80,7 @@ namespace tools
 
                 foreach (var project in projects.Components)
                 {
-                    for (int page = 1 ;; page++)
+                    for (int page = 1; ; page++)
                     {
                         if (!GenerateIssues(project.Key, page, "CODE_SMELL", csv))
                             break;
@@ -87,35 +89,163 @@ namespace tools
             }
         }
 
+        internal record ReportData(string Project, string Type, string Level, int Count);
+
         private void GenerateSummaryReport(string folder)
         {
+            List<ReportData> summaries = new List<ReportData>();
+
+            foreach (var key in counterCache.Keys)
+            {
+                string[] keySplit = key.Split('|');
+
+                summaries.Add(
+                    new ReportData(
+                        Project: keySplit[0],
+                        Type: keySplit[1],
+                        Level: keySplit[2],
+                        Count: counterCache[key]
+                    )
+                );
+            }
+
+            StringBuilder report = new StringBuilder();
+
+            GenerateSummaryReport1(summaries, report);
+            report.AppendLine();
+            report.AppendLine();
+            GenerateSummaryReport2(summaries, report);
+
+            // file
             string path = Path.Combine(folder, "sonarqube-summary-report.csv");
 
             if (File.Exists(path))
                 File.Delete(path);
 
-            using (var writer = new StreamWriter(path))
-            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            File.WriteAllText(path, report.ToString());
+        }
+
+        readonly string hotspots = "HOTSPOTS";
+        readonly string[] issues = { "VULNERABILITY", "BUG", "CODE_SMELL" };
+        readonly string[] issues_levels = { "BLOCKER", "CRITICAL", "MAJOR", "MINOR", "INFO" };
+        readonly string[] hotspots_levels = { "HIGH", "MEDIUM", "LOW" };
+        readonly string separator = ",";
+
+        private void GenerateSummaryReport1(List<ReportData> summaries, StringBuilder report)
+        {
+            List<string> proyects = summaries.Select(t => t.Project).Distinct().ToList();
+
+            //header
+
+            report.Append("PROYECTS");
+            foreach (var issue in issues)
+                report.Append(separator + issue);
+            report.Append(separator + hotspots);
+            report.AppendLine();
+
+            //projects
+
+            string sum1(string type, string project)
             {
-                csv.WriteHeader<ReportSummary>();
-                csv.NextRecord();
+                var t = summaries
+                    .Where(t => t.Type == type && t.Project == project)
+                    .Sum(t => t.Count);
 
-                foreach (var key in counterCache.Keys)
-                {
-                    string[] keySplit = key.Split('|');
-
-                    ReportSummary reportSummary = new ReportSummary()
-                    {
-                        Project = keySplit[0],
-                        Type = keySplit[1],
-                        Level = keySplit[2],
-                        Count = counterCache[key].ToString()
-                    };
-
-                    csv.WriteRecord(reportSummary);
-                    csv.NextRecord();
-                }
+                return t == 0 ? "-" : Convert.ToString(t);
             }
+
+            string sum2(string type)
+            {
+                var t = summaries.Where(t => t.Type == type).Sum(t => t.Count);
+
+                return t == 0 ? "-" : Convert.ToString(t);
+            }
+
+            foreach (var project in proyects)
+            {
+                report.Append(project);
+                foreach (var issue in issues)
+                    report.Append(separator + sum1(issue, project));
+                report.Append(separator + sum1(hotspots, project));
+                report.AppendLine();
+            }
+
+            // totals
+            report.Append("TOTALS");
+            foreach (var issue in issues)
+                report.Append(separator + sum2(issue));
+            report.Append(separator + sum2(hotspots));
+        }
+
+        private void GenerateSummaryReport2(List<ReportData> summaries, StringBuilder report)
+        {
+            List<string> proyects = summaries.Select(t => t.Project).Distinct().ToList();
+
+            //header 1
+
+            report.Append("PROYECTS");
+            foreach (var issue in issues)
+            {
+                foreach (var issue_level in issues_levels)
+                    report.Append(separator + issue);
+            }
+            foreach (var hotspot_level in hotspots_levels)
+                report.Append(separator + hotspots);
+            report.AppendLine();
+
+            //header 2
+
+            report.Append("PROYECTS");
+            foreach (var issue in issues)
+            {
+                foreach (var issue_level in issues_levels)
+                    report.Append(separator + issue_level);
+            }
+            foreach (var hotspot_level in hotspots_levels)
+                report.Append(separator + hotspot_level);
+            report.AppendLine();
+
+            //projects
+
+            string count(string type, string level, string project)
+            {
+                var t = summaries.Find(t =>
+                    t.Type == type && t.Level == level && t.Project == project
+                );
+
+                return t == null ? "-" : Convert.ToString(t.Count);
+            }
+
+            string sum(string type, string level)
+            {
+                var t = summaries.Where(t => t.Type == type && t.Level == level).Sum(t => t.Count);
+
+                return t == 0 ? "-" : t.ToString();
+            }
+
+            foreach (var project in proyects)
+            {
+                report.Append(project);
+                foreach (var issue in issues)
+                {
+                    foreach (var issue_level in issues_levels)
+                        report.Append(separator + count(issue, issue_level, project));
+                }
+                foreach (var hotspot_level in hotspots_levels)
+                    report.Append(separator + count(hotspots, hotspot_level, project));
+
+                report.AppendLine();
+            }
+
+            // totals
+            report.Append("TOTALS");
+            foreach (var issue in issues)
+            {
+                foreach (var issue_level in issues_levels)
+                    report.Append(separator + sum(issue, issue_level));
+            }
+            foreach (var hotspot_level in hotspots_levels)
+                report.Append(separator + sum(hotspots, hotspot_level));
         }
 
         private bool GenerateIssues(string project, int page, string types, CsvWriter csv)
@@ -125,7 +255,9 @@ namespace tools
             if (issues.Issues.Count == 0)
                 return false;
 
-            Console.WriteLine($"Issues{(types != null ? ($" ({types})") : string.Empty)} - project {project} - page {page}");
+            Console.WriteLine(
+                $"Issues{(types != null ? ($" ({types})") : string.Empty)} - project {project} - page {page}"
+            );
 
             foreach (var issue in issues.Issues)
             {

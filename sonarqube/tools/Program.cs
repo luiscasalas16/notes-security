@@ -13,16 +13,16 @@
 
             List<string> proyects = new List<string>
             {
-                "PlusFramework-API-2",
-                "PlusFramework-COL-2",
-                "PlusFramework-DAL-2",
-                "PlusFramework-ENT-2",
-                "PlusFramework-FCL-2",
-                "PlusFramework-RED-2",
-                "PlusFramework-RSL-2",
-                "PlusFramework-SEC-2",
-                "PlusFramework-UIL-2",
-                "PlusFramework-UTL-2",
+                "PlusFramework-API-3",
+                "PlusFramework-COL-3",
+                "PlusFramework-DAL-3",
+                "PlusFramework-ENT-3",
+                "PlusFramework-FCL-3",
+                "PlusFramework-RED-3",
+                "PlusFramework-RSL-3",
+                "PlusFramework-SEC-3",
+                "PlusFramework-UTL-3",
+                "PlusFramework-UIL-3"
             };
 
             new ReportGenerator(url, user, password).Generate(folder, proyects);
