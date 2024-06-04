@@ -5,9 +5,11 @@ networks:
 
 services:
   sonarqube:
-    image: sonarqube:9.9-community
+    container_name: sonarqube_10_5_1
+    image: sonarqube:10.5.1-community
+    restart: unless-stopped
     depends_on:
-      - db
+      - postgresql
     expose:
       - 9000
     ports:
@@ -15,7 +17,7 @@ services:
     networks:
       - sonarnet
     environment:
-      - SONAR_JDBC_URL=jdbc:postgresql://db:5432/sonar
+      - SONAR_JDBC_URL=jdbc:postgresql://postgresql:5432/sonar
       - SONAR_JDBC_USERNAME=sonar
       - SONAR_JDBC_PASSWORD=sonar
     volumes:
@@ -23,8 +25,10 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
 
-  db:
+  postgresql:
+    container_name: postgresql_10_5_1
     image: postgres:12.19
+    restart: unless-stopped
     networks:
       - sonarnet
     environment:
@@ -36,37 +40,37 @@ services:
 
 volumes:
   sonarqube_data:
-    name: sonarqube_data
+    name: sonarqube_data_10_5_1
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\v9.9\sonarqube_data
+      device: C:\sonar\10-5-1\sonarqube_data
   sonarqube_extensions:
-    name: sonarqube_extensions
+    name: sonarqube_extensions_10_5_1
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\v9.9\sonarqube_extensions
+      device: C:\sonar\10-5-1\sonarqube_extensions
   sonarqube_logs:
-    name: sonarqube_logs
+    name: sonarqube_logs_10_5_1
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\v9.9\sonarqube_logs
+      device: C:\sonar\10-5-1\sonarqube_logs
   postgresql:
-    name: postgresql
+    name: postgresql_10_5_1
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\v9.9\postgresql
+      device: C:\sonar\10-5-1\postgresql
   postgresql_data:
-    name: postgresql_data
+    name: postgresql_data_10_5_1
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\v9.9\postgresql_data
+      device: C:\sonar\10-5-1\postgresql_data
