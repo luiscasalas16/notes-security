@@ -21,9 +21,9 @@ services:
       - SONAR_JDBC_USERNAME=sonar
       - SONAR_JDBC_PASSWORD=sonar
     volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_extensions:/opt/sonarqube/extensions
-      - sonarqube_logs:/opt/sonarqube/logs
+      - sonar_sonarqube_data:/opt/sonarqube/data
+      - sonar_sonarqube_extensions:/opt/sonarqube/extensions
+      - sonar_sonarqube_logs:/opt/sonarqube/logs
 
   postgresql:
     container_name: postgresql_9_9
@@ -35,42 +35,34 @@ services:
       - POSTGRES_USER=sonar
       - POSTGRES_PASSWORD=sonar
     volumes:
-      - postgresql:/var/lib/postgresql
-      - postgresql_data:/var/lib/postgresql/data
+      - sonar_postgresql_data:/var/lib/postgresql/data
 
 volumes:
-  sonarqube_data:
-    name: sonarqube_data_9_9
+  sonar_sonarqube_data:
+    name: sonar_9_9_sonarqube_data
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\9-9\sonarqube_data
-  sonarqube_extensions:
-    name: sonarqube_extensions_9_9
+      device: C:\sonar\9_9\sonar_sonarqube_data
+  sonar_sonarqube_extensions:
+    name: sonar_9_9_sonarqube_extensions
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\9-9\sonarqube_extensions
-  sonarqube_logs:
-    name: sonarqube_logs_9_9
+      device: C:\sonar\9_9\sonar_sonarqube_extensions
+  sonar_sonarqube_logs:
+    name: sonar_9_9_sonarqube_logs
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\9-9\sonarqube_logs
-  postgresql:
-    name: postgresql_9_9
+      device: C:\sonar\9_9\sonar_sonarqube_logs
+  sonar_postgresql_data:
+    name: sonar_9_9_postgresql_data
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\9-9\postgresql
-  postgresql_data:
-    name: postgresql_data_9_9
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: C:\sonar\9-9\postgresql_data
+      device: C:\sonar\9_9\sonar_postgresql_data

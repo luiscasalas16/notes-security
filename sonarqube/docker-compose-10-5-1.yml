@@ -21,9 +21,9 @@ services:
       - SONAR_JDBC_USERNAME=sonar
       - SONAR_JDBC_PASSWORD=sonar
     volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_extensions:/opt/sonarqube/extensions
-      - sonarqube_logs:/opt/sonarqube/logs
+      - sonar_sonarqube_data:/opt/sonarqube/data
+      - sonar_sonarqube_extensions:/opt/sonarqube/extensions
+      - sonar_sonarqube_logs:/opt/sonarqube/logs
 
   postgresql:
     container_name: postgresql_10_5_1
@@ -35,42 +35,34 @@ services:
       - POSTGRES_USER=sonar
       - POSTGRES_PASSWORD=sonar
     volumes:
-      - postgresql:/var/lib/postgresql
-      - postgresql_data:/var/lib/postgresql/data
+      - sonar_postgresql_data:/var/lib/postgresql/data
 
 volumes:
-  sonarqube_data:
-    name: sonarqube_data_10_5_1
+  sonar_sonarqube_data:
+    name: sonar_10_5_1_sonarqube_data
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\10-5-1\sonarqube_data
-  sonarqube_extensions:
-    name: sonarqube_extensions_10_5_1
+      device: C:\sonar\10_5_1\sonar_sonarqube_data
+  sonar_sonarqube_extensions:
+    name: sonar_10_5_1_sonarqube_extensions
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\10-5-1\sonarqube_extensions
-  sonarqube_logs:
-    name: sonarqube_logs_10_5_1
+      device: C:\sonar\10_5_1\sonar_sonarqube_extensions
+  sonar_sonarqube_logs:
+    name: sonar_10_5_1_sonarqube_logs
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\10-5-1\sonarqube_logs
-  postgresql:
-    name: postgresql_10_5_1
+      device: C:\sonar\10_5_1\sonar_onarqube_logs
+  sonar_postgresql_data:
+    name: sonar_10_5_1_postgresql_data
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\10-5-1\postgresql
-  postgresql_data:
-    name: postgresql_data_10_5_1
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: C:\sonar\10-5-1\postgresql_data
+      device: C:\sonar\10_5_1\sonar_postgresql_data
