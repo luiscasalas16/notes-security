@@ -5,8 +5,8 @@ networks:
 
 services:
   sonarqube:
-    container_name: sonarqube_9_9
-    image: sonarqube:9.9-community
+    container_name: sonarqube_10_6
+    image: sonarqube:10.5.1-community
     restart: unless-stopped
     depends_on:
       - postgresql
@@ -26,7 +26,7 @@ services:
       - sonar_sonarqube_logs:/opt/sonarqube/logs
 
   postgresql:
-    container_name: postgresql_9_9
+    container_name: postgresql_10_6
     image: postgres:12.19
     restart: unless-stopped
     networks:
@@ -39,30 +39,30 @@ services:
 
 volumes:
   sonar_sonarqube_data:
-    name: sonar_9_9_sonarqube_data
+    name: sonar_10_6_sonarqube_data
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\9_9\sonar_sonarqube_data
+      device: C:\sonarqube\10_6\sonar_sonarqube_data
   sonar_sonarqube_extensions:
-    name: sonar_9_9_sonarqube_extensions
+    name: sonar_10_6_sonarqube_extensions
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\9_9\sonar_sonarqube_extensions
+      device: C:\sonarqube\10_6\sonar_sonarqube_extensions
   sonar_sonarqube_logs:
-    name: sonar_9_9_sonarqube_logs
+    name: sonar_10_6_sonarqube_logs
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\9_9\sonar_sonarqube_logs
+      device: C:\sonarqube\10_6\sonar_onarqube_logs
   sonar_postgresql_data:
-    name: sonar_9_9_postgresql_data
+    name: sonar_10_6_postgresql_data
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: C:\sonar\9_9\sonar_postgresql_data
+      device: C:\sonarqube\10_6\sonar_postgresql_data
