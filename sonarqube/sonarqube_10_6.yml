@@ -6,7 +6,7 @@ networks:
 services:
   sonarqube:
     container_name: sonarqube_10_6
-    image: sonarqube:10.5.1-community
+    image: sonarqube:10.6-community
     restart: unless-stopped
     depends_on:
       - postgresql
